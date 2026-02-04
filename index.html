@@ -143,6 +143,7 @@
     let questions = [];
     let stats = { total: 0, correct: 0, avgSpeed: 0 };
     let currentQuestion = null;
+    let availableQuestions = []; // Der Topf mit den noch nicht gestellten Fragen
     let startTime;
     let timerInterval;
     let currentInput = "";
@@ -168,10 +169,14 @@
         } catch (e) { console.warn("Daten werden geladen..."); }
     }
 
-    function updateStatsDisplay() {
-        const percent = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
-        document.getElementById('mainStats').innerHTML = `Fragen: ${stats.total} | Richtig: ${percent}% | Ø ${stats.avgSpeed.toFixed(2)}s`;
-    }
+function updateStatsDisplay() {
+    const percent = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
+    const remaining = availableQuestions.length;
+    document.getElementById('mainStats').innerHTML = `
+        Fragen: ${stats.total} | Richtig: ${percent}% | Ø ${stats.avgSpeed.toFixed(2)}s<br>
+        <small style="opacity:0.7">Noch ${remaining} neue Fragen in dieser Runde</small>
+    `;
+}
 
     function showView(id) {
         document.querySelectorAll('.container > div').forEach(div => div.classList.add('hidden'));
@@ -184,28 +189,48 @@
         nextQuestion();
     }
 
-    function nextQuestion() {
-        document.getElementById('result').classList.add('hidden');
-        document.getElementById('lockBtn').classList.remove('hidden');
-        currentInput = "";
-        updateInputUI();
-        currentQuestion = questions[Math.floor(Math.random() * questions.length)];
-        document.getElementById('questionText').innerText = currentQuestion.text;
-        const list = document.getElementById('sortableList');
-        list.innerHTML = '';
-        ['A', 'B', 'C', 'D'].forEach(key => {
-            const div = document.createElement('div');
-            div.className = 'option';
-            div.id = `opt-${key}`;
-            div.innerText = `${key}: ${currentQuestion.options[key]}`;
-            list.appendChild(div);
-        });
-        startTime = Date.now();
-        if(timerInterval) clearInterval(timerInterval);
-        timerInterval = setInterval(() => {
-            document.getElementById('timer').innerText = ((Date.now() - startTime) / 1000).toFixed(2) + "s";
-        }, 50);
+function nextQuestion() {
+    document.getElementById('result').classList.add('hidden');
+    document.getElementById('lockBtn').classList.remove('hidden');
+    currentInput = "";
+    updateInputUI();
+
+    // Wenn der Topf leer ist oder wir neu starten, fülle ihn mit allen Fragen
+    if (availableQuestions.length === 0) {
+        availableQuestions = [...questions];
+        // Optional: Ein kleiner Hinweis, dass die Runde neu startet
+        console.log("Alle Fragen wurden einmal gestellt. Topf wird neu gefüllt.");
     }
+
+    // Wähle eine zufällige Frage aus dem verfügbaren Topf
+    const randomIndex = Math.floor(Math.random() * availableQuestions.length);
+    currentQuestion = availableQuestions[randomIndex];
+
+    // Entferne die gewählte Frage aus dem verfügbaren Topf
+    availableQuestions.splice(randomIndex, 1);
+
+    document.getElementById('questionText').innerText = currentQuestion.text;
+    
+    // Fortschrittsanzeige im Log oder UI (optional)
+    console.log(`Noch ${availableQuestions.length} Fragen im Topf.`);
+
+    const list = document.getElementById('sortableList');
+    list.innerHTML = '';
+    ['A', 'B', 'C', 'D'].forEach(key => {
+        const div = document.createElement('div');
+        div.className = 'option';
+        div.id = `opt-${key}`;
+        div.innerText = `${key}: ${currentQuestion.options[key]}`;
+        list.appendChild(div);
+    });
+
+    startTime = Date.now();
+    if(timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        document.getElementById('timer').innerText = ((Date.now() - startTime) / 1000).toFixed(2) + "s";
+    }, 50);
+    updateStatsDisplay()
+}
 
     function typeKey(key) {
         if (currentInput.length < 4 && !currentInput.includes(key)) {
