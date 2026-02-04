@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TwM - Tobi wird Millionär</title>
+    <style>
+        :root {
+            --primary: #e94560;
+            --bg-dark: #1a1a2e;
+            --bg-card: #16213e;
+            --accent: #0f3460;
+            --text: #ffffff;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: var(--bg-dark); 
+            color: var(--text); 
+            margin: 0; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh;
+        }
+
+        .container { 
+            width: 90%; 
+            max-width: 600px; 
+            padding: 30px; 
+            border-radius: 20px; 
+            background: var(--bg-card); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid var(--accent);
+        }
+
+        h1 { color: var(--primary); margin-bottom: 10px; }
+        .hidden { display: none; }
+
+        /* Optionen / Drag & Drop */
+        #sortableList { margin: 20px 0; }
+        .option { 
+            background: var(--accent); 
+            margin: 10px 0; 
+            padding: 15px; 
+            cursor: grab; 
+            border: 2px solid transparent; 
+            border-radius: 8px; 
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .option:active { cursor: grabbing; }
+        .option.dragging { opacity: 0.5; border: 2px dashed var(--primary); }
+
+        /* Buttons */
+        button { 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            padding: 12px 25px; 
+            cursor: pointer; 
+            border-radius: 8px; 
+            font-weight: bold; 
+            margin: 10px 5px;
+            transition: transform 0.1s;
+        }
+        button:hover { filter: brightness(1.2); }
+        button:active { transform: scale(0.95); }
+        button.secondary { background: #4e4e4e; }
+
+        /* Stats & Timer */
+        .stats-box { 
+            background: rgba(0,0,0,0.2); 
+            padding: 15px; 
+            border-radius: 10px; 
+            font-size: 0.9em; 
+            margin-top: 20px;
+        }
+        #timer { font-size: 2em; color: var(--primary); margin: 10px 0; }
+        
+        /* Form */
+        input, textarea {
+            width: 100%; padding: 10px; margin: 5px 0; border-radius: 5px; border: none;
+            background: #0f3460; color: white; box-sizing: border-box;
+        }
+        .feedback-area { margin-top: 20px; padding: 15px; border-radius: 10px; }
+        .correct { background: #28a745; }
+        .wrong { background: #dc3545; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="menu">
+        <h1>TwM 💰</h1>
+        <p>Training für die Auswahlrunde</p>
+        <button onclick="startTraining()">Training starten</button>
+        <button onclick="showView('addQuestionView')" class="secondary">Frage hinzufügen</button>
+        <button onclick="exportData()" class="secondary">Daten Exportieren</button>
+        <button onclick="resetRemoteData()" style="background: #444; font-size: 0.7em;">NPoint Reset</button>
+        
+        <div class="stats-box" id="mainStats">Lade Daten...</div>
+    </div>
+
+    <div id="trainingView" class="hidden">
+        <div id="timer">0.00s</div>
+        <h3 id="questionText">Frage wird geladen...</h3>
+        <div id="sortableList"></div>
+        <button id="lockBtn" onclick="checkAnswer()">Einloggen</button>
+        
+        <div id="result" class="hidden">
+            <div id="feedback" class="feedback-area"></div>
+            <p id="explanation" style="margin-top: 15px; font-style: italic;"></p>
+            <button onclick="nextQuestion()">Nächste Frage</button>
+            <button onclick="showView('menu')" class="secondary">Beenden</button>
+        </div>
+    </div>
+
+    <div id="addQuestionView" class="hidden">
+        <h3>Neue Frage hinzufügen</h3>
+        <input type="text" id="qText" placeholder="Fragestellung (z.B. Sortiere nach Größe)">
+        <input type="text" id="optA" placeholder="Option A">
+        <input type="text" id="optB" placeholder="Option B">
+        <input type="text" id="optC" placeholder="Option C">
+        <input type="text" id="optD" placeholder="Option D">
+        <input type="text" id="correctOrder" placeholder="Richtige Reihenfolge (z.B. BADC)">
+        <textarea id="qExpl" placeholder="Erklärung (optional)"></textarea>
+        <button onclick="saveQuestion()">Speichern & Hochladen</button>
+        <button onclick="showView('menu')" class="secondary">Abbrechen</button>
+    </div>
+</div>
+
+<script>
+    // --- KONFIGURATION ---
+    const NPOINT_ID = 'DEINE_NPOINT_ID'; // Ersetze dies durch deine npoint.io ID
+    let questions = [];
+    let stats = { total: 0, correct: 0, avgSpeed: 0 };
+    let currentQuestion = null;
+    let startTime;
+    let timerInterval;
+
+    // --- DATEN-LOGIK ---
+    async function loadData() {
+        try {
+            // 1. Lokale Fragen laden
+            const localRes = await fetch('fragen.json');
+            const localData = await localRes.json();
+            questions = localData.questions || [];
+            stats = localData.stats || { total: 0, correct: 0, avgSpeed: 0 };
+
+            // 2. npoint Daten laden und mergen
+            const remoteRes = await fetch(`https://api.npoint.io/${NPOINT_ID}`);
+            if (remoteRes.ok) {
+                const remoteData = await remoteRes.json();
+                if (remoteData.questions) {
+                    remoteData.questions.forEach(rq => {
+                        if (!questions.find(lq => lq.text === rq.text)) questions.push(rq);
+                    });
+                }
+                // Statistik von npoint bevorzugen, wenn dort mehr Fortschritt ist
+                if (remoteData.stats && remoteData.stats.total > stats.total) {
+                    stats = remoteData.stats;
+                }
+            }
+            updateStatsDisplay();
+        } catch (e) {
+            console.error("Fehler beim Laden:", e);
+            document.getElementById('mainStats').innerText = "Fehler beim Laden der Daten.";
+        }
+    }
+
+    async function saveToNpoint() {
+        try {
+            await fetch(`https://api.npoint.io/${NPOINT_ID}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ questions, stats })
+            });
+        } catch (e) { console.error("Cloud-Save fehlgeschlagen", e); }
+    }
+
+    // --- UI-LOGIK ---
+    function showView(id) {
+        document.querySelectorAll('.container > div').forEach(div => div.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+    }
+
+    function updateStatsDisplay() {
+        const percent = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
+        document.getElementById('mainStats').innerHTML = `
+            <b>Statistik:</b><br>
+            Fragen absolviert: ${stats.total}<br>
+            Richtig: ${stats.correct} (${percent}%)<br>
+            Durchschn. Speed: ${stats.avgSpeed.toFixed(2)}s
+        `;
+    }
+
+    function startTraining() {
+        if (questions.length === 0) return alert("Keine Fragen geladen!");
+        showView('trainingView');
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        document.getElementById('result').classList.add('hidden');
+        document.getElementById('lockBtn').classList.remove('hidden');
+        currentQuestion = questions[Math.floor(Math.random() * questions.length)];
+        document.getElementById('questionText').innerText = currentQuestion.text;
+        
+        const list = document.getElementById('sortableList');
+        list.innerHTML = '';
+        
+        // Zufällige Start-Anordnung der Optionen
+        let keys = ['A', 'B', 'C', 'D'];
+        keys.sort(() => Math.random() - 0.5);
+        
+        keys.forEach(key => {
+            const div = document.createElement('div');
+            div.className = 'option';
+            div.innerText = `${key}: ${currentQuestion.options[key]}`;
+            div.dataset.key = key;
+            div.draggable = true;
+            list.appendChild(div);
+        });
+        
+        startTime = Date.now();
+        timerInterval = setInterval(() => {
+            const diff = (Date.now() - startTime) / 1000;
+            document.getElementById('timer').innerText = diff.toFixed(2) + "s";
+        }, 50);
+    }
+
+    function checkAnswer() {
+        clearInterval(timerInterval);
+        const endTime = (Date.now() - startTime) / 1000;
+        const userOrder = Array.from(document.querySelectorAll('.option')).map(el => el.dataset.key).join('');
+        const correct = userOrder === currentQuestion.answer;
+
+        // Stats updaten
+        stats.total++;
+        if (correct) stats.correct++;
+        stats.avgSpeed = (stats.avgSpeed * (stats.total - 1) + endTime) / stats.total;
+
+        // Feedback anzeigen
+        const fb = document.getElementById('feedback');
+        fb.className = 'feedback-area ' + (correct ? 'correct' : 'wrong');
+        fb.innerText = correct ? `Richtig! Zeit: ${endTime.toFixed(2)}s` : `Falsch! Korrekt wäre: ${currentQuestion.answer}`;
+        document.getElementById('explanation').innerText = currentQuestion.explanation || "";
+        
+        document.getElementById('result').classList.remove('hidden');
+        document.getElementById('lockBtn').classList.add('hidden');
+        
+        updateStatsDisplay();
+        saveToNpoint();
+    }
+
+    async function saveQuestion() {
+        const newQ = {
+            text: document.getElementById('qText').value,
+            options: {
+                A: document.getElementById('optA').value,
+                B: document.getElementById('optB').value,
+                C: document.getElementById('optC').value,
+                D: document.getElementById('optD').value
+            },
+            answer: document.getElementById('correctOrder').value.toUpperCase(),
+            explanation: document.getElementById('qExpl').value
+        };
+        
+        if (!newQ.text || !newQ.answer) return alert("Bitte Text und Antwort ausfüllen!");
+        
+        questions.push(newQ);
+        await saveToNpoint();
+        alert("Frage gespeichert!");
+        showView('menu');
+    }
+
+    function exportData() {
+        const data = { questions, stats };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'twm_backup.json';
+        a.click();
+    }
+
+    async function resetRemoteData() {
+        if (confirm("Remote-Daten (NPoint) wirklich mit lokalem Stand überschreiben?")) {
+            await saveToNpoint();
+            alert("Erledigt.");
+        }
+    }
+
+    // --- DRAG & DROP LOGIK ---
+    const list = document.getElementById('sortableList');
+    list.addEventListener('dragstart', e => e.target.classList.add('dragging'));
+    list.addEventListener('dragover', e => {
+        e.preventDefault();
+        const dragging = document.querySelector('.dragging');
+        const afterElement = getDragAfterElement(list, e.clientY);
+        if (afterElement == null) list.appendChild(dragging);
+        else list.insertBefore(dragging, afterElement);
+    });
+    list.addEventListener('dragend', e => e.target.classList.remove('dragging'));
+
+    function getDragAfterElement(container, y) {
+        const elements = [...container.querySelectorAll('.option:not(.dragging)')];
+        return elements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2;
+            if (offset < 0 && offset > closest.offset) return { offset: offset, element: child };
+            else return closest;
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+    // Start
+    loadData();
+</script>
+
+</body>
+</html>
