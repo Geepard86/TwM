@@ -12,6 +12,7 @@
             --accent: #0f3460;
             --text: #ffffff;
             --danger: #ff4c4c;
+            --success: #28a745;
         }
 
         body { 
@@ -26,80 +27,62 @@
         }
 
         .container { 
-            width: 100%; 
-            max-width: 500px; 
-            padding: 20px; 
-            background: var(--bg-card); 
-            min-height: 100vh;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
+            width: 100%; max-width: 500px; padding: 20px; 
+            background: var(--bg-card); min-height: 100vh;
+            box-sizing: border-box; display: flex; flex-direction: column;
         }
 
-        h1 { color: var(--primary); text-align: center; margin-bottom: 5px; }
-        .subtitle { text-align: center; opacity: 0.6; font-size: 0.8em; margin-bottom: 20px; }
+        h1 { color: var(--primary); text-align: center; margin: 0; }
+        .subtitle { text-align: center; opacity: 0.6; font-size: 0.8em; margin-bottom: 15px; }
         .hidden { display: none; }
 
-        /* Optionen / Sortierung */
-        #sortableList { margin: 20px 0; }
+        /* Sortable List */
+        #sortableList { margin: 15px 0; }
         .option { 
-            background: var(--accent); 
-            margin: 10px 0; 
-            padding: 18px; 
-            cursor: grab; 
-            border: 2px solid rgba(255,255,255,0.1); 
-            border-radius: 12px; 
-            user-select: none;
-            touch-action: none;
-            font-weight: bold;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            background: var(--accent); margin: 8px 0; padding: 15px; 
+            border: 2px solid rgba(255,255,255,0.1); border-radius: 10px; 
+            font-weight: bold; cursor: grab; touch-action: none;
         }
-        .option.dragging { 
-            opacity: 0.9; 
-            transform: scale(1.02);
-            background: var(--primary);
-            border-color: white;
-        }
+        .option.dragging { opacity: 0.8; background: var(--primary); transform: scale(1.02); }
 
-        /* Buttons */
-        button { 
-            width: 100%;
-            background: var(--primary); 
-            color: white; 
-            border: none; 
-            padding: 15px; 
-            cursor: pointer; 
-            border-radius: 10px; 
-            font-weight: bold; 
-            margin: 8px 0;
-            font-size: 1rem;
+        /* Input Area (Selection Buttons) */
+        .input-display {
+            background: #000; padding: 15px; border-radius: 10px;
+            text-align: center; font-size: 1.5em; letter-spacing: 10px;
+            margin-bottom: 15px; color: var(--primary); min-height: 1.2em;
+            border: 2px solid var(--accent);
+        }
+        .button-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }
+        .choice-btn {
+            background: var(--accent); color: white; border: none; padding: 15px 5px;
+            border-radius: 8px; font-weight: bold; font-size: 1.2em; cursor: pointer;
+        }
+        .choice-btn:disabled { opacity: 0.2; cursor: default; }
+        .choice-btn.backspace { background: #444; }
+
+        /* General UI */
+        button.main-btn { 
+            width: 100%; background: var(--primary); color: white; border: none; 
+            padding: 15px; border-radius: 10px; font-weight: bold; margin: 5px 0;
         }
         button.secondary { background: #4e4e4e; }
         button.danger { background: var(--danger); }
         
         .stats-box { 
-            background: rgba(0,0,0,0.3); 
-            padding: 20px; 
-            border-radius: 15px; 
-            font-size: 0.95em; 
-            margin: 20px 0;
-            line-height: 1.6;
-            border: 1px dashed var(--primary);
+            background: rgba(0,0,0,0.3); padding: 15px; border-radius: 15px; 
+            font-size: 0.9em; margin: 15px 0; border: 1px dashed var(--primary);
         }
 
-        #timer { font-size: 3em; color: var(--primary); text-align: center; font-family: monospace; margin-bottom: 10px; }
+        #timer { font-size: 2.5em; color: var(--primary); text-align: center; font-family: monospace; }
         
         input, textarea {
-            width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: none;
+            width: 100%; padding: 12px; margin: 5px 0; border-radius: 8px; border: none;
             background: #0f3460; color: white; box-sizing: border-box;
         }
 
-        .feedback-area { margin-top: 20px; padding: 20px; border-radius: 10px; text-align: center; font-weight: bold; font-size: 1.2em; }
-        .correct { background: #28a745; }
-        .wrong { background: #dc3545; }
-
-        .settings-group { margin-bottom: 30px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; }
-        .settings-label { display: block; margin-bottom: 10px; font-weight: bold; color: var(--primary); }
+        .feedback-area { margin-top: 15px; padding: 15px; border-radius: 10px; text-align: center; }
+        .correct { background: var(--success); }
+        .wrong { background: var(--danger); }
     </style>
 </head>
 <body>
@@ -108,56 +91,55 @@
     <div id="menu">
         <h1>TwM 💰</h1>
         <p class="subtitle">Tobi wird Millionär - Selection Training</p>
-        
         <div class="stats-box" id="mainStats">Lade Daten...</div>
-
-        <button onclick="startTraining()">Training starten</button>
-        <button onclick="showView('addQuestionView')" class="secondary">Frage hinzufügen</button>
-        <button onclick="showView('settingsView')" class="secondary">Settings ⚙️</button>
+        <button class="main-btn" onclick="startTraining()">Training starten</button>
+        <button class="main-btn secondary" onclick="showView('addQuestionView')">Frage hinzufügen</button>
+        <button class="main-btn secondary" onclick="showView('settingsView')">Settings ⚙️</button>
     </div>
 
     <div id="trainingView" class="hidden">
         <div id="timer">0.00s</div>
-        <h3 id="questionText" style="text-align: center; min-height: 60px;"></h3>
+        <p id="questionText" style="text-align: center; font-weight: bold;"></p>
+        
         <div id="sortableList"></div>
-        <button id="lockBtn" onclick="checkAnswer()">Einloggen</button>
+
+        <div class="input-display" id="userInputDisplay">____</div>
+        
+        <div class="button-grid">
+            <button class="choice-btn" id="btnA" onclick="typeKey('A')">A</button>
+            <button class="choice-btn" id="btnB" onclick="typeKey('B')">B</button>
+            <button class="choice-btn" id="btnC" onclick="typeKey('C')">C</button>
+            <button class="choice-btn" id="btnD" onclick="typeKey('D')">D</button>
+            <button class="choice-btn backspace" onclick="backspace()">⌫</button>
+        </div>
+
+        <button id="lockBtn" class="main-btn" onclick="checkAnswer()" disabled>Einloggen</button>
         
         <div id="result" class="hidden">
             <div id="feedback" class="feedback-area"></div>
-            <p id="explanation" style="margin-top: 15px; font-style: italic; text-align: center;"></p>
-            <button onclick="nextQuestion()">Nächste Frage</button>
-            <button onclick="showView('menu')" class="secondary">Beenden</button>
+            <p id="explanation" style="margin-top: 10px; font-style: italic; text-align: center; font-size: 0.9em;"></p>
+            <button class="main-btn" onclick="nextQuestion()">Nächste Frage</button>
+            <button class="main-btn secondary" onclick="showView('menu')">Beenden</button>
         </div>
     </div>
 
     <div id="addQuestionView" class="hidden">
-        <h3>Neue Frage erstellen</h3>
+        <h3>Neue Frage</h3>
         <input type="text" id="qText" placeholder="Fragestellung">
-        <input type="text" id="optA" placeholder="Option A">
-        <input type="text" id="optB" placeholder="Option B">
-        <input type="text" id="optC" placeholder="Option C">
-        <input type="text" id="optD" placeholder="Option D">
-        <input type="text" id="correctOrder" placeholder="Korrekt (z.B. BADC)">
+        <input type="text" id="optA" placeholder="A"><input type="text" id="optB" placeholder="B">
+        <input type="text" id="optC" placeholder="C"><input type="text" id="optD" placeholder="D">
+        <input type="text" id="correctOrder" placeholder="Reihenfolge (z.B. BADC)">
         <textarea id="qExpl" placeholder="Erklärung (optional)"></textarea>
-        <button onclick="saveQuestion()">Speichern & Upload</button>
-        <button onclick="showView('menu')" class="secondary">Abbrechen</button>
+        <button class="main-btn" onclick="saveQuestion()">Speichern</button>
+        <button class="main-btn secondary" onclick="showView('menu')">Abbrechen</button>
     </div>
 
     <div id="settingsView" class="hidden">
         <h3>Settings ⚙️</h3>
-        
-        <div class="settings-group">
-            <span class="settings-label">Daten-Management</span>
-            <button onclick="exportData()" class="secondary">📦 Daten Exportieren (JSON)</button>
-            <button onclick="resetRemoteData()" class="secondary">🔄 NPoint Sync (Upload)</button>
-        </div>
-
-        <div class="settings-group">
-            <span class="settings-label">Gefahrenzone</span>
-            <button onclick="resetStatistics()" class="danger">📉 Statistik Reset</button>
-        </div>
-
-        <button onclick="showView('menu')">Zurück zum Hauptmenü</button>
+        <button class="main-btn secondary" onclick="exportData()">📦 Daten Exportieren</button>
+        <button class="main-btn secondary" onclick="resetRemoteData()">🔄 NPoint Sync</button>
+        <button class="main-btn danger" onclick="resetStatistics()">📉 Statistik Reset</button>
+        <button class="main-btn" onclick="showView('menu')">Zurück</button>
     </div>
 </div>
 
@@ -168,6 +150,7 @@
     let currentQuestion = null;
     let startTime;
     let timerInterval;
+    let currentInput = "";
 
     async function loadData() {
         try {
@@ -187,20 +170,12 @@
                 if (remoteData.stats && remoteData.stats.total > stats.total) stats = remoteData.stats;
             }
             updateStatsDisplay();
-        } catch (e) { 
-            console.error(e);
-            document.getElementById('mainStats').innerText = "Bereit (Lokale Daten verwendet)";
-        }
+        } catch (e) { console.warn("Lade-Fehler"); }
     }
 
     function updateStatsDisplay() {
         const percent = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
-        document.getElementById('mainStats').innerHTML = `
-            <b>Dein Fortschritt:</b><br>
-            Beantwortet: <b>${stats.total}</b><br>
-            Richtig: <b>${stats.correct}</b> (${percent}%)<br>
-            Ø Zeit: <b>${stats.avgSpeed.toFixed(2)}s</b>
-        `;
+        document.getElementById('mainStats').innerHTML = `Fragen: ${stats.total} | Quote: ${percent}% | Ø ${stats.avgSpeed.toFixed(2)}s`;
     }
 
     function showView(id) {
@@ -209,26 +184,26 @@
     }
 
     function startTraining() {
-        if (questions.length === 0) return alert("Lade erst Fragen!");
         showView('trainingView');
         nextQuestion();
     }
 
     function nextQuestion() {
         document.getElementById('result').classList.add('hidden');
-        document.getElementById('lockBtn').classList.remove('hidden');
+        currentInput = "";
+        updateInputUI();
+        
         currentQuestion = questions[Math.floor(Math.random() * questions.length)];
         document.getElementById('questionText').innerText = currentQuestion.text;
         
         const list = document.getElementById('sortableList');
         list.innerHTML = '';
-        ['A', 'B', 'C', 'D'].sort(() => Math.random() - 0.5).forEach(key => {
+        ['A', 'B', 'C', 'D'].forEach(key => {
             const div = document.createElement('div');
             div.className = 'option';
+            div.id = `opt-${key}`;
             div.innerText = `${key}: ${currentQuestion.options[key]}`;
-            div.dataset.key = key;
             list.appendChild(div);
-            addDragListeners(div);
         });
         
         startTime = Date.now();
@@ -238,11 +213,36 @@
         }, 50);
     }
 
+    function typeKey(key) {
+        if (currentInput.length < 4 && !currentInput.includes(key)) {
+            currentInput += key;
+            updateInputUI();
+        }
+    }
+
+    function backspace() {
+        currentInput = currentInput.slice(0, -1);
+        updateInputUI();
+    }
+
+    function updateInputUI() {
+        const display = currentInput.padEnd(4, "_");
+        document.getElementById('userInputDisplay').innerText = display;
+        
+        // Buttons de/aktivieren
+        ['A', 'B', 'C', 'D'].forEach(key => {
+            document.getElementById(`btn${key}`).disabled = currentInput.includes(key);
+            const optEl = document.getElementById(`opt-${key}`);
+            if(optEl) optEl.style.opacity = currentInput.includes(key) ? "0.3" : "1";
+        });
+
+        document.getElementById('lockBtn').disabled = (currentInput.length < 4);
+    }
+
     function checkAnswer() {
         clearInterval(timerInterval);
         const endTime = (Date.now() - startTime) / 1000;
-        const userOrder = Array.from(document.querySelectorAll('.option')).map(el => el.dataset.key).join('');
-        const correct = userOrder === currentQuestion.answer;
+        const correct = currentInput === currentQuestion.answer;
 
         stats.total++;
         if (correct) stats.correct++;
@@ -250,23 +250,21 @@
 
         const fb = document.getElementById('feedback');
         fb.className = 'feedback-area ' + (correct ? 'correct' : 'wrong');
-        fb.innerText = correct ? `RICHTIG! ✅ ${endTime.toFixed(2)}s` : `FALSCH! ❌ Korrekt: ${currentQuestion.answer}`;
+        fb.innerText = correct ? `RICHTIG! (${endTime.toFixed(2)}s)` : `FALSCH! Korrekt: ${currentQuestion.answer}`;
         document.getElementById('explanation').innerText = currentQuestion.explanation || "";
         
         document.getElementById('result').classList.remove('hidden');
-        document.getElementById('lockBtn').classList.add('hidden');
         updateStatsDisplay();
         saveToNpoint();
     }
 
+    // --- API & SETTINGS ---
     async function saveToNpoint() {
-        try {
-            await fetch(`https://api.npoint.io/${NPOINT_ID}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ questions, stats })
-            });
-        } catch (e) { console.warn("Sync failed"); }
+        fetch(`https://api.npoint.io/${NPOINT_ID}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ questions, stats })
+        });
     }
 
     function exportData() {
@@ -279,64 +277,27 @@
     }
 
     async function resetRemoteData() {
-        if (confirm("Möchtest du npoint.io mit dem aktuellen lokalen Stand (Fragen & Stats) überschreiben?")) {
-            await saveToNpoint();
-            alert("Erfolgreich synchronisiert!");
-        }
+        if (confirm("Remote mit lokalem Stand überschreiben?")) await saveToNpoint();
     }
 
     async function resetStatistics() {
-        if (confirm("Statistiken wirklich auf NULL setzen? Die Fragen bleiben erhalten.")) {
+        if (confirm("Statistik auf Null setzen?")) {
             stats = { total: 0, correct: 0, avgSpeed: 0 };
             updateStatsDisplay();
             await saveToNpoint();
-            alert("Statistik wurde zurückgesetzt.");
         }
     }
 
     async function saveQuestion() {
         const newQ = {
             text: document.getElementById('qText').value,
-            options: {
-                A: document.getElementById('optA').value,
-                B: document.getElementById('optB').value,
-                C: document.getElementById('optC').value,
-                D: document.getElementById('optD').value
-            },
+            options: { A: document.getElementById('optA').value, B: document.getElementById('optB').value, C: document.getElementById('optC').value, D: document.getElementById('optD').value },
             answer: document.getElementById('correctOrder').value.toUpperCase(),
             explanation: document.getElementById('qExpl').value
         };
-        if(!newQ.text || !newQ.answer) return alert("Bitte Pflichtfelder ausfüllen!");
         questions.push(newQ);
         await saveToNpoint();
         showView('menu');
-    }
-
-    function addDragListeners(el) {
-        el.onpointerdown = function(e) {
-            el.classList.add('dragging');
-            el.setPointerCapture(e.pointerId);
-        };
-        el.onpointermove = function(e) {
-            if (!el.classList.contains('dragging')) return;
-            const list = document.getElementById('sortableList');
-            const afterElement = getDragAfterElement(list, e.clientY);
-            if (afterElement == null) list.appendChild(el);
-            else list.insertBefore(el, afterElement);
-        };
-        el.onpointerup = function() {
-            el.classList.remove('dragging');
-        };
-    }
-
-    function getDragAfterElement(container, y) {
-        const elements = [...container.querySelectorAll('.option:not(.dragging)')];
-        return elements.reduce((closest, child) => {
-            const box = child.getBoundingClientRect();
-            const offset = y - box.top - box.height / 2;
-            if (offset < 0 && offset > closest.offset) return { offset: offset, element: child };
-            else return closest;
-        }, { offset: Number.NEGATIVE_INFINITY }).element;
     }
 
     loadData();
