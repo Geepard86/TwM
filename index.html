@@ -22,162 +22,173 @@
             margin: 0; 
             display: flex; 
             justify-content: center; 
-            min-height: 100vh;
+            height: 100vh;
+            overflow: hidden;
             touch-action: manipulation;
-            overflow: hidden; /* Verhindert Scrollen der gesamten Seite */
         }
 
         .container { 
-            width: 100%; max-width: 500px; padding: 20px; height: 100vh;
-            background: var(--bg-card); min-height: 100vh;
-            box-sizing: border-box; display: flex; flex-direction: column;
-            justify-content: space-between;
+            width: 100%; max-width: 500px; padding: 20px; 
+            background: var(--bg-card); height: 100vh;
+            box-sizing: border-box; position: relative;
         }
 
-        #menu, #trainingView, #settingsView, #addQuestionView {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-
-        .explanation-box {
-    margin-top: 15px;
-    padding: 15px;
-    background: rgba(233, 69, 96, 0.1);
-    border-left: 4px solid var(--primary);
-    border-radius: 5px;
-    font-style: italic;
-    font-size: 0.9em;
-    color: #ddd;
-}
+        /* View-Steuerung */
+        .view {
+            display: none; /* Standardmäßig alles weg */
+            flex-direction: column;
+            height: 100%;
+            justify-content: space-between;
+        }
+        .view.active {
+            display: flex; /* Nur die aktive View ist ein Flex-Container */
+        }
 
         h1 { color: var(--primary); text-align: center; margin: 0; }
-        .subtitle { text-align: center; opacity: 0.6; font-size: 0.8em; margin-bottom: 15px; }
-        .hidden { display: none; }
+        .subtitle { text-align: center; opacity: 0.6; font-size: 0.8em; margin-bottom: 10px; }
 
-        #sortableList { margin: 15px 0; flex-grow: 1; overflow-y: auto; }
+        /* Training Layout */
+        #questionText { text-align: center; font-weight: bold; margin: 10px 0; min-height: 3em; }
+        #sortableList { flex-grow: 1; overflow-y: auto; margin-bottom: 10px; }
+        
         .option { 
-            background: var(--accent); margin: 8px 0; padding: 15px; 
+            background: var(--accent); margin: 6px 0; padding: 12px; 
             border: 2px solid rgba(255,255,255,0.1); border-radius: 10px; 
-            font-weight: bold; transition: opacity 0.2s;
+            font-weight: bold;
         }
 
         .input-display {
-            background: #000; padding: 15px; border-radius: 10px;
-            text-align: center; font-size: 1.5em; letter-spacing: 10px;
-            margin-bottom: 15px; color: var(--primary); min-height: 1.2em;
-            border: 2px solid var(--accent); font-family: monospace;
+            background: #000; padding: 10px; border-radius: 10px;
+            text-align: center; font-size: 1.8em; letter-spacing: 8px;
+            margin-bottom: 10px; color: var(--primary); font-family: monospace;
+            border: 2px solid var(--accent);
         }
-        .button-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }
+
+        .button-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 10px; }
         .choice-btn {
-            background: var(--accent); color: white; border: none; padding: 15px 5px;
+            background: var(--accent); color: white; border: none; padding: 12px 0;
             border-radius: 8px; font-weight: bold; font-size: 1.2em; cursor: pointer;
         }
-        .choice-btn:disabled { opacity: 0.2; cursor: default; }
-        .choice-btn.backspace { background: #444; }
+        .choice-btn:disabled { opacity: 0.2; }
 
+        /* Buttons & Stats */
         button.main-btn { 
             width: 100%; background: var(--primary); color: white; border: none; 
-            padding: 15px; border-radius: 10px; font-weight: bold; margin: 5px 0;
+            padding: 15px; border-radius: 10px; font-weight: bold; margin: 4px 0;
             cursor: pointer; font-size: 1rem;
         }
         button.secondary { background: #4e4e4e; }
         button.danger { background: var(--danger); }
-        button:disabled { opacity: 0.5; }
         
         .stats-box { 
             background: rgba(0,0,0,0.3); padding: 15px; border-radius: 15px; 
-            font-size: 0.9em; margin: 15px 0; border: 1px dashed var(--primary);
+            font-size: 0.85em; margin: 10px 0; border: 1px dashed var(--primary);
         }
 
-        #timer { font-size: 2.5em; color: var(--primary); text-align: center; font-family: monospace; }
+        #timer { font-size: 2.5em; color: var(--primary); text-align: center; font-family: monospace; margin-bottom: 5px; }
         
+        .explanation-box {
+            padding: 12px; background: rgba(233, 69, 96, 0.1);
+            border-left: 4px solid var(--primary); border-radius: 5px;
+            font-style: italic; font-size: 0.85em; color: #ddd; margin-bottom: 10px;
+            overflow-y: auto; max-height: 150px;
+        }
+
         input, textarea {
             width: 100%; padding: 12px; margin: 5px 0; border-radius: 8px; border: none;
-            background: #0f3460; color: white; box-sizing: border-box; font-size: 1rem;
+            background: #0f3460; color: white; box-sizing: border-box;
         }
 
-        .feedback-area { margin-top: 15px; padding: 15px; border-radius: 10px; text-align: center; font-weight: bold; }
+        .feedback-area { padding: 12px; border-radius: 10px; text-align: center; font-weight: bold; margin-bottom: 10px; }
         .correct { background: var(--success); }
         .wrong { background: var(--danger); }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div id="menu">
-        <h1>TwM 💰</h1>
-        <p class="subtitle">Tobi wird Millionär - Selection Training</p>
-        <div class="stats-box" id="mainStats">Lade Daten...</div>
-        <button class="main-btn" onclick="startTraining()">Training starten</button>
-        <button class="main-btn secondary" onclick="showView('addQuestionView')">Frage hinzufügen</button>
-        <button class="main-btn secondary" onclick="showView('settingsView')">Settings ⚙️</button>
-    </div>
-
-    <div id="trainingView" class="hidden">
-        <div id="timer">0.00s</div>
-        <p id="questionText" style="text-align: center; font-weight: bold; min-height: 50px;"></p>
-        <div id="sortableList"></div>
-        <div class="input-display" id="userInputDisplay">____</div>
-        <div class="button-grid">
-            <button class="choice-btn" id="btnA" onclick="typeKey('A')">A</button>
-            <button class="choice-btn" id="btnB" onclick="typeKey('B')">B</button>
-            <button class="choice-btn" id="btnC" onclick="typeKey('C')">C</button>
-            <button class="choice-btn" id="btnD" onclick="typeKey('D')">D</button>
-            <button class="choice-btn backspace" onclick="backspace()">⌫</button>
+    <div id="menu" class="view active">
+        <div>
+            <h1>TwM 💰</h1>
+            <p class="subtitle">Tobi wird Millionär - Training</p>
+            <div class="stats-box" id="mainStats">Lade Daten...</div>
         </div>
-        <button id="lockBtn" class="main-btn" onclick="checkAnswer()" disabled>Einloggen</button>
-        <div id="result" class="hidden" style="flex-grow: 1; display: flex; flex-direction: column;">
-    <div id="feedback" class="feedback-area"></div>
-    <div class="explanation-box" id="explContainer">
-        <b>Erklärung:</b><br>
-        <span id="explanation"></span>
-    </div>
-    <div style="margin-top: auto;"> <button class="main-btn" onclick="nextQuestion()">Nächste Frage</button>
-        <button class="main-btn secondary" onclick="showView('menu')">Training Beenden</button>
-    </div>
-</div>
+        <div>
+            <button class="main-btn" onclick="startTraining()">Training starten</button>
+            <button class="main-btn secondary" onclick="showView('addQuestionView')">Frage hinzufügen</button>
+            <button class="main-btn secondary" onclick="showView('settingsView')">Settings ⚙️</button>
+        </div>
     </div>
 
-    <div id="addQuestionView" class="hidden">
-        <h3>Neue Frage</h3>
-        <input type="text" id="qText" placeholder="Fragestellung" class="nav-input">
-        <input type="text" id="optA" placeholder="Option A" class="nav-input">
-        <input type="text" id="optB" placeholder="Option B" class="nav-input">
-        <input type="text" id="optC" placeholder="Option C" class="nav-input">
-        <input type="text" id="optD" placeholder="Option D" class="nav-input">
-        <input type="text" id="correctOrder" placeholder="Reihenfolge (z.B. BADC)" maxlength="4" class="nav-input" autocomplete="off" style="text-transform: uppercase; font-weight: bold;">
-        <textarea id="qExpl" placeholder="Erklärung (optional)" class="nav-input"></textarea>
+    <div id="trainingView" class="view">
+        <div id="timer">0.00s</div>
+        <p id="questionText"></p>
+        
+        <div id="sortableList"></div>
+
+        <div id="interactionArea">
+            <div class="input-display" id="userInputDisplay">____</div>
+            <div class="button-grid">
+                <button class="choice-btn" id="btnA" onclick="typeKey('A')">A</button>
+                <button class="choice-btn" id="btnB" onclick="typeKey('B')">B</button>
+                <button class="choice-btn" id="btnC" onclick="typeKey('C')">C</button>
+                <button class="choice-btn" id="btnD" onclick="typeKey('D')">D</button>
+                <button class="choice-btn" style="background:#444" onclick="backspace()">⌫</button>
+            </div>
+            <button id="lockBtn" class="main-btn" onclick="checkAnswer()" disabled>Einloggen</button>
+        </div>
+
+        <div id="result" class="hidden">
+            <div id="feedback" class="feedback-area"></div>
+            <div class="explanation-box">
+                <b>Erklärung:</b><br><span id="explanation"></span>
+            </div>
+            <button class="main-btn" onclick="nextQuestion()">Nächste Frage</button>
+            <button class="main-btn secondary" onclick="showView('menu')">Beenden</button>
+        </div>
+    </div>
+
+    <div id="addQuestionView" class="view">
+        <h1>Neue Frage</h1>
+        <div style="flex-grow: 1; overflow-y: auto;">
+            <input type="text" id="qText" placeholder="Fragestellung" class="nav-input">
+            <input type="text" id="optA" placeholder="Option A" class="nav-input">
+            <input type="text" id="optB" placeholder="Option B" class="nav-input">
+            <input type="text" id="optC" placeholder="Option C" class="nav-input">
+            <input type="text" id="optD" placeholder="Option D" class="nav-input">
+            <input type="text" id="correctOrder" placeholder="Reihenfolge (BADC)" maxlength="4" class="nav-input" style="text-transform:uppercase">
+            <textarea id="qExpl" placeholder="Erklärung" class="nav-input" rows="3"></textarea>
+        </div>
         <button class="main-btn" onclick="saveQuestion()">Speichern (Enter)</button>
         <button class="main-btn secondary" onclick="showView('menu')">Abbrechen</button>
     </div>
 
-    <div id="settingsView" class="hidden">
-        <h3>Settings ⚙️</h3>
-        <button class="main-btn secondary" onclick="exportData()">📦 Daten Exportieren (fragen.json)</button>
-        <button class="main-btn secondary" onclick="resetRemoteData()">🗑️ NPoint Cloud LEEREN</button>
-        <button class="main-btn danger" onclick="resetStatistics()">📉 Statistik Reset</button>
+    <div id="settingsView" class="view">
+        <h1>Settings ⚙️</h1>
+        <div style="flex-grow: 1;">
+            <button class="main-btn secondary" onclick="exportData()">📦 Daten Exportieren (fragen.json)</button>
+            <button class="main-btn secondary" onclick="resetRemoteData()">🗑️ NPoint Cloud LEEREN</button>
+            <button class="main-btn danger" onclick="resetStatistics()">📉 Statistik Reset</button>
+        </div>
         <button class="main-btn" onclick="showView('menu')">Zurück</button>
     </div>
 </div>
 
 <script>
     const NPOINT_ID = 'ab726626f0cb39e63663'; 
-    let questions = [];
-    let stats = { total: 0, correct: 0, avgSpeed: 0 };
-    let currentQuestion = null;
-    let availableQuestions = []; // Der Topf mit den noch nicht gestellten Fragen
-    let startTime;
-    let timerInterval;
-    let currentInput = "";
+    let questions = [], stats = { total: 0, correct: 0, avgSpeed: 0 };
+    let availableQuestions = [], currentQuestion = null;
+    let startTime, timerInterval, currentInput = "";
 
     async function loadData() {
         try {
             const localRes = await fetch('fragen.json');
-            const localData = await localRes.json();
-            questions = localData.questions || [];
-            stats = localData.stats || { total: 0, correct: 0, avgSpeed: 0 };
-
+            if(localRes.ok) {
+                const localData = await localRes.json();
+                questions = localData.questions || [];
+                stats = localData.stats || { total: 0, correct: 0, avgSpeed: 0 };
+            }
             const remoteRes = await fetch(`https://api.npoint.io/${NPOINT_ID}`);
             if (remoteRes.ok) {
                 const remoteData = await remoteRes.json();
@@ -190,81 +201,62 @@
             }
             availableQuestions = [...questions];
             updateStatsDisplay();
-        } catch (e) { console.warn("Daten werden geladen..."); }
+        } catch (e) { console.error("Load Error", e); }
     }
 
-function updateStatsDisplay() {
-    const percent = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
-    const remaining = availableQuestions ? availableQuestions.length : 0;
-    const totalInPool = questions.length;
-
-    document.getElementById('mainStats').innerHTML = `
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <span>Gesamt-Pool: <b>${totalInPool}</b></span>
-            <span>Gespielt: <b>${stats.total}</b></span>
-            <span>Richtig: <b>${stats.correct}</b> (${percent}%)</span>
-            <span>Ø Speed: <b>${stats.avgSpeed.toFixed(2)}s</b></span>
-        </div>
-        <hr style="border: 0; border-top: 1px solid var(--accent); margin: 10px 0;">
-        <div style="text-align: center; color: var(--primary);">
-            Unverbraucht im aktuellen Topf: <b>${remaining}</b>
-        </div>
-    `;
-}
+    function updateStatsDisplay() {
+        const percent = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
+        const remaining = availableQuestions.length;
+        document.getElementById('mainStats').innerHTML = `
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
+                <span>Pool: <b>${questions.length}</b></span>
+                <span>Gespielt: <b>${stats.total}</b></span>
+                <span>Richtig: <b>${percent}%</b></span>
+                <span>Ø Speed: <b>${stats.avgSpeed.toFixed(2)}s</b></span>
+            </div>
+            <hr style="border:0; border-top:1px solid #0f3460; margin:10px 0">
+            <div style="text-align:center">Noch <b>${remaining}</b> neue Fragen im Topf</div>`;
+    }
 
     function showView(id) {
-        document.querySelectorAll('.container > div').forEach(div => div.classList.add('hidden'));
-        document.getElementById(id).classList.remove('hidden');
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        if(id === 'menu') updateStatsDisplay();
     }
 
     function startTraining() {
-        if(questions.length === 0) return alert("Keine Fragen geladen.");
+        if(questions.length === 0) return alert("Keine Fragen!");
         showView('trainingView');
         nextQuestion();
     }
 
-function nextQuestion() {
-    document.getElementById('result').classList.add('hidden');
-    document.getElementById('lockBtn').classList.remove('hidden');
-    currentInput = "";
-    updateInputUI();
+    function nextQuestion() {
+        document.getElementById('result').classList.add('hidden');
+        document.getElementById('interactionArea').classList.remove('hidden');
+        currentInput = "";
+        updateInputUI();
 
-    // Wenn der Topf leer ist oder wir neu starten, fülle ihn mit allen Fragen
-    if (availableQuestions.length === 0) {
-        availableQuestions = [...questions];
-        // Optional: Ein kleiner Hinweis, dass die Runde neu startet
-        console.log("Alle Fragen wurden einmal gestellt. Topf wird neu gefüllt.");
+        if (availableQuestions.length === 0) availableQuestions = [...questions];
+        const idx = Math.floor(Math.random() * availableQuestions.length);
+        currentQuestion = availableQuestions.splice(idx, 1)[0];
+
+        document.getElementById('questionText').innerText = currentQuestion.text;
+        const list = document.getElementById('sortableList');
+        list.innerHTML = '';
+        ['A', 'B', 'C', 'D'].forEach(key => {
+            const div = document.createElement('div');
+            div.className = 'option';
+            div.id = `opt-${key}`;
+            div.innerText = `${key}: ${currentQuestion.options[key]}`;
+            list.appendChild(div);
+        });
+
+        startTime = Date.now();
+        if(timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            document.getElementById('timer').innerText = ((Date.now() - startTime) / 1000).toFixed(2) + "s";
+        }, 50);
     }
-
-    // Wähle eine zufällige Frage aus dem verfügbaren Topf
-    const randomIndex = Math.floor(Math.random() * availableQuestions.length);
-    currentQuestion = availableQuestions[randomIndex];
-
-    // Entferne die gewählte Frage aus dem verfügbaren Topf
-    availableQuestions.splice(randomIndex, 1);
-
-    document.getElementById('questionText').innerText = currentQuestion.text;
-    
-    // Fortschrittsanzeige im Log oder UI (optional)
-    console.log(`Noch ${availableQuestions.length} Fragen im Topf.`);
-
-    const list = document.getElementById('sortableList');
-    list.innerHTML = '';
-    ['A', 'B', 'C', 'D'].forEach(key => {
-        const div = document.createElement('div');
-        div.className = 'option';
-        div.id = `opt-${key}`;
-        div.innerText = `${key}: ${currentQuestion.options[key]}`;
-        list.appendChild(div);
-    });
-
-    startTime = Date.now();
-    if(timerInterval) clearInterval(timerInterval);
-    timerInterval = setInterval(() => {
-        document.getElementById('timer').innerText = ((Date.now() - startTime) / 1000).toFixed(2) + "s";
-    }, 50);
-    updateStatsDisplay()
-}
 
     function typeKey(key) {
         if (currentInput.length < 4 && !currentInput.includes(key)) {
@@ -280,28 +272,28 @@ function nextQuestion() {
 
     function updateInputUI() {
         document.getElementById('userInputDisplay').innerText = currentInput.padEnd(4, "_");
-        ['A', 'B', 'C', 'D'].forEach(key => {
-            document.getElementById(`btn${key}`).disabled = currentInput.includes(key);
-            const optEl = document.getElementById(`opt-${key}`);
-            if(optEl) optEl.style.opacity = currentInput.includes(key) ? "0.2" : "1";
+        ['A', 'B', 'C', 'D'].forEach(k => {
+            document.getElementById(`btn${k}`).disabled = currentInput.includes(k);
+            const el = document.getElementById(`opt-${k}`);
+            if(el) el.style.opacity = currentInput.includes(k) ? "0.2" : "1";
         });
         document.getElementById('lockBtn').disabled = (currentInput.length < 4);
     }
 
     function checkAnswer() {
         clearInterval(timerInterval);
-        const endTime = (Date.now() - startTime) / 1000;
+        const time = (Date.now() - startTime) / 1000;
         const correct = currentInput === currentQuestion.answer;
         stats.total++;
         if (correct) stats.correct++;
-        stats.avgSpeed = (stats.avgSpeed * (stats.total - 1) + endTime) / stats.total;
+        stats.avgSpeed = (stats.avgSpeed * (stats.total - 1) + time) / stats.total;
+
+        document.getElementById('interactionArea').classList.add('hidden');
         const fb = document.getElementById('feedback');
         fb.className = 'feedback-area ' + (correct ? 'correct' : 'wrong');
-        fb.innerText = correct ? `RICHTIG! ✅ (${endTime.toFixed(2)}s)` : `FALSCH! ❌ Korrekt: ${currentQuestion.answer}`;
-        document.getElementById('explanation').innerText = currentQuestion.explanation || "";
+        fb.innerText = correct ? `RICHTIG! ✅ (${time.toFixed(2)}s)` : `FALSCH! ❌ Korrekt: ${currentQuestion.answer}`;
+        document.getElementById('explanation').innerText = currentQuestion.explanation || "Keine Erklärung vorhanden.";
         document.getElementById('result').classList.remove('hidden');
-        document.getElementById('lockBtn').classList.add('hidden');
-        updateStatsDisplay();
         saveToNpoint();
     }
 
@@ -314,76 +306,55 @@ function nextQuestion() {
     }
 
     function exportData() {
-        // Hier war die fehlende Klammer im alten Code:
-        const data = { 
-            questions: questions, 
-            stats: { total: 0, correct: 0, avgSpeed: 0 } 
-        };
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const data = { questions, stats: { total: 0, correct: 0, avgSpeed: 0 } };
         const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
+        a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
         a.download = 'fragen.json';
         a.click();
     }
 
     async function resetRemoteData() {
-        if (confirm("Cloud (npoint) wirklich LEEREN?")) {
-            const emptyData = { questions: [], stats: { total: 0, correct: 0, avgSpeed: 0 } };
+        if (confirm("Cloud wirklich LEEREN?")) {
             await fetch(`https://api.npoint.io/${NPOINT_ID}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(emptyData)
+                body: JSON.stringify({ questions: [], stats: { total: 0, correct: 0, avgSpeed: 0 } })
             });
-            alert("Cloud geleert!");
             location.reload();
         }
     }
 
     async function resetStatistics() {
-        if (confirm("Statistik auf Null setzen?")) {
+        if (confirm("Statistik Reset?")) {
             stats = { total: 0, correct: 0, avgSpeed: 0 };
-            availableQuestions = [...questions]; // Auch den Topf resetten
+            availableQuestions = [...questions];
             updateStatsDisplay();
-            await saveToNpoint();
+            saveToNpoint();
         }
     }
 
     async function saveQuestion() {
         const newQ = {
             text: document.getElementById('qText').value,
-            options: { 
-                A: document.getElementById('optA').value, 
-                B: document.getElementById('optB').value, 
-                C: document.getElementById('optC').value, 
-                D: document.getElementById('optD').value 
-            },
+            options: { A: document.getElementById('optA').value, B: document.getElementById('optB').value, C: document.getElementById('optC').value, D: document.getElementById('optD').value },
             answer: document.getElementById('correctOrder').value.toUpperCase(),
             explanation: document.getElementById('qExpl').value
         };
-        if(!newQ.text || newQ.answer.length < 4) return alert("Bitte alles ausfüllen!");
+        if(!newQ.text || newQ.answer.length < 4) return alert("Fehler!");
         questions.push(newQ);
         await saveToNpoint();
-        alert("Gespeichert!");
         showView('menu');
         document.querySelectorAll('.nav-input').forEach(i => i.value = "");
     }
 
-    // Enter Navigation
+    // Enter Nav
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            const active = document.activeElement;
-            if (active.classList.contains('nav-input')) {
-                e.preventDefault();
-                const inputs = Array.from(document.querySelectorAll('.nav-input'));
-                const index = inputs.indexOf(active);
-                if (index < inputs.length - 1) inputs[index + 1].focus();
-                else saveQuestion();
-            }
+        if (e.key === 'Enter' && document.activeElement.classList.contains('nav-input')) {
+            const inputs = Array.from(document.querySelectorAll('.nav-input'));
+            const idx = inputs.indexOf(document.activeElement);
+            if (idx < inputs.length - 1) inputs[idx + 1].focus();
+            else saveQuestion();
         }
-    });
-
-    document.getElementById('correctOrder').addEventListener('input', function() {
-        this.value = this.value.toUpperCase().replace(/[^A-D]/g, '');
     });
 
     loadData();
