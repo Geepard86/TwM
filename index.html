@@ -123,16 +123,28 @@
         </div>
     </div>
 
-    <div id="addQuestionView" class="hidden">
-        <h3>Neue Frage</h3>
-        <input type="text" id="qText" placeholder="Fragestellung">
-        <input type="text" id="optA" placeholder="A"><input type="text" id="optB" placeholder="B">
-        <input type="text" id="optC" placeholder="C"><input type="text" id="optD" placeholder="D">
-        <input type="text" id="correctOrder" placeholder="Reihenfolge (z.B. BADC)">
-        <textarea id="qExpl" placeholder="Erklärung (optional)"></textarea>
-        <button class="main-btn" onclick="saveQuestion()">Speichern</button>
-        <button class="main-btn secondary" onclick="showView('menu')">Abbrechen</button>
+<div id="addQuestionView" class="hidden">
+    <h3>Neue Frage</h3>
+    <div id="inputGroup">
+        <input type="text" id="qText" placeholder="Fragestellung" class="nav-input">
+        <input type="text" id="optA" placeholder="Option A" class="nav-input">
+        <input type="text" id="optB" placeholder="Option B" class="nav-input">
+        <input type="text" id="optC" placeholder="Option C" class="nav-input">
+        <input type="text" id="optD" placeholder="Option D" class="nav-input">
+        <input type="text" id="correctOrder" 
+               placeholder="Reihenfolge (z.B. BADC)" 
+               maxlength="4" 
+               class="nav-input"
+               style="text-transform: uppercase; font-weight: bold; letter-spacing: 5px;"
+               autocomplete="off" 
+               autocorrect="off" 
+               autocapitalize="characters" 
+               spellcheck="false">
+        <textarea id="qExpl" placeholder="Erklärung (optional)" class="nav-input"></textarea>
     </div>
+    <button class="main-btn" onclick="saveQuestion()">Speichern (Enter)</button>
+    <button class="main-btn secondary" onclick="showView('menu')">Abbrechen</button>
+</div>
 
     <div id="settingsView" class="hidden">
         <h3>Settings ⚙️</h3>
@@ -299,6 +311,31 @@
         await saveToNpoint();
         showView('menu');
     }
+
+    // Navigation mit Enter und Filter für die Reihenfolge
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        const active = document.activeElement;
+        if (active.classList.contains('nav-input')) {
+            e.preventDefault();
+            const inputs = Array.from(document.querySelectorAll('.nav-input'));
+            const index = inputs.indexOf(active);
+            
+            if (index < inputs.length - 1) {
+                inputs[index + 1].focus(); // Springe zum nächsten Feld
+            } else {
+                saveQuestion(); // Im letzten Feld (Textarea) wird gespeichert
+            }
+        }
+    }
+});
+
+// Beschränkung für das Feld "Reihenfolge"
+const orderInput = document.getElementById('correctOrder');
+orderInput.addEventListener('input', function(e) {
+    // Erlaube nur A, B, C, D (und wandle in Großbuchstaben um)
+    this.value = this.value.toUpperCase().replace(/[^A-D]/g, '');
+});
 
     loadData();
 </script>
