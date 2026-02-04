@@ -158,6 +158,7 @@
             <input type="text" id="optC" placeholder="Option C" class="nav-input">
             <input type="text" id="optD" placeholder="Option D" class="nav-input">
             <input type="text" id="correctOrder" placeholder="Reihenfolge (BADC)" maxlength="4" class="nav-input" style="text-transform:uppercase">
+            <input type="text" id="correctOrder" placeholder="Reihenfolge (z.B. BADC)" maxlength="4" class="nav-input" autocomplete="off" autocorrect="off" spellcheck="false" style="text-transform: uppercase; font-weight: bold;">
             <textarea id="qExpl" placeholder="Erklärung" class="nav-input" rows="3"></textarea>
         </div>
         <button class="main-btn" onclick="saveQuestion()">Speichern (Enter)</button>
@@ -347,15 +348,37 @@
         document.querySelectorAll('.nav-input').forEach(i => i.value = "");
     }
 
-    // Enter Nav
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && document.activeElement.classList.contains('nav-input')) {
+// --- INPUT VALIDIERUNG & NAVIGATION ---
+
+// 1. Navigation mit Enter-Taste
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        const active = document.activeElement;
+        if (active.classList.contains('nav-input')) {
+            e.preventDefault();
             const inputs = Array.from(document.querySelectorAll('.nav-input'));
-            const idx = inputs.indexOf(document.activeElement);
-            if (idx < inputs.length - 1) inputs[idx + 1].focus();
-            else saveQuestion();
+            const index = inputs.indexOf(active);
+            
+            if (index < inputs.length - 1) {
+                inputs[index + 1].focus(); // Springe zum nächsten Feld
+            } else {
+                saveQuestion(); // Im letzten Feld (Textarea) wird gespeichert
+            }
         }
+    }
+});
+
+// 2. Nur A, B, C, D im Feld "correctOrder" erlauben
+// Wir nutzen 'input', damit es bei jeder Tastatureingabe und auch beim Einfügen prüft
+const orderInput = document.getElementById('correctOrder');
+if (orderInput) {
+    orderInput.addEventListener('input', function(e) {
+        // Wandelt alles in Großbuchstaben um
+        let value = this.value.toUpperCase();
+        // Löscht alles, was kein A, B, C oder D ist
+        this.value = value.replace(/[^A-D]/g, '');
     });
+}
 
     loadData();
 </script>
