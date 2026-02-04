@@ -166,11 +166,41 @@
 
     <div id="settingsView" class="view">
         <h1>Settings ⚙️</h1>
-        <div style="flex-grow: 1;">
+        
+        <div style="flex-grow: 1; overflow-y: auto; padding-bottom: 20px;">
             <button class="main-btn secondary" onclick="exportData()">📦 Daten Exportieren (fragen.json)</button>
             <button class="main-btn secondary" onclick="resetRemoteData()">🗑️ NPoint Cloud LEEREN</button>
             <button class="main-btn danger" onclick="resetStatistics()">📉 Statistik Reset</button>
+
+            <hr style="border:0; border-top:1px solid var(--accent); margin: 20px 0;">
+
+            <div style="background: rgba(0,0,0,0.2); padding:15px; border-radius:10px;">
+                <span style="color: var(--primary); font-weight: bold; font-size: 0.9em;">📦 Massenimport</span>
+                
+                <p style="font-size:0.7em; opacity:0.8; margin: 10px 0; line-height: 1.4; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 5px;">
+                    <strong>Format pro Frage:</strong><br>
+                    Zeile 1: Die Frage<br>
+                    Zeile 2-5: A: ... B: ... C: ... D: ...<br>
+                    Zeile 6: KORREKTE REIHENFOLGE: ABCD<br>
+                    Zeile 7: ERKLÄRUNG: Infos hier<br>
+                    <em>(Wichtig: Eine Leerzeile zwischen den Fragen!)</em>
+                </p>
+                
+                <textarea id="massInput" placeholder="Hier Fragen im richtigen Format reinkopieren..." rows="5"></textarea>
+                
+                <div id="importPreview" class="hidden" style="background: #000; padding: 10px; border-radius: 5px; font-size: 0.8em; margin: 10px 0; max-height: 120px; overflow-y: auto; border: 1px solid var(--primary); text-align: left;">
+                    <div id="previewContent"></div>
+                </div>
+
+                <button id="previewBtn" class="main-btn" onclick="prepareImport()">Vorschau generieren</button>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button id="confirmImportBtn" class="main-btn hidden" style="background:var(--success); flex: 2;" onclick="executeImport()">Import Bestätigen</button>
+                    <button id="cancelImportBtn" class="main-btn danger hidden" style="flex: 1;" onclick="cancelImport()">Abbrechen</button>
+                </div>
+            </div>
         </div>
+
         <button class="main-btn" onclick="showView('menu')">Zurück</button>
     </div>
 </div>
@@ -381,6 +411,93 @@ if (orderInput) {
         // Löscht alles, was kein A, B, C oder D ist
         this.value = value.replace(/[^A-D]/g, '');
     });
+}
+
+    // --- MASSENIMPORT LOGIK ---
+let tempQuestions = []; // Speicher für die geladenen, aber noch nicht gespeicherten Fragen
+
+function prepareImport() {
+    const input = document.getElementById('massInput').value.trim();
+    if (!input) return alert("Das Textfeld ist leer!");
+
+    tempQuestions = [];
+    // Trennung der Fragen anhand von Leerzeilen
+    const blocks = input.split(/\n\s*\n/); 
+    let errorLog = [];
+
+    blocks.forEach((block, index) => {
+        const lines = block.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        if (lines.length < 6) return; // Überspringe leere Blöcke
+
+        try {
+            const q = {
+                text: lines[0],
+                options: {
+                    A: lines.find(l => l.toUpperCase().startsWith('A:'))?.split(':')[1]?.trim(),
+                    B: lines.find(l => l.toUpperCase().startsWith('B:'))?.split(':')[1]?.trim(),
+                    C: lines.find(l => l.toUpperCase().startsWith('C:'))?.split(':')[1]?.trim(),
+                    D: lines.find(l => l.toUpperCase().startsWith('D:'))?.split(':')[1]?.trim()
+                },
+                // Extrahiert nur die Buchstaben A-D aus der Lösungszeile
+                answer: lines.find(l => l.toUpperCase().includes('REIHENFOLGE:'))?.split(':')[1]?.toUpperCase().replace(/[^A-D]/g, ''),
+                explanation: lines.find(l => l.toUpperCase().startsWith('ERKLÄRUNG:'))?.split(':')[1]?.trim() || ""
+            };
+
+            // LOGIK-CHECK: Ist die Frage valide?
+            if (!q.text || !q.options.A || !q.options.B || !q.options.C || !q.options.D || q.answer?.length !== 4) {
+                throw new Error("Formatfehler");
+            }
+            tempQuestions.push(q);
+        } catch (e) {
+            errorLog.push(`Block ${index + 1}`);
+        }
+    });
+
+    if (errorLog.length > 0) {
+        alert("ACHTUNG: Folgende Blöcke sind fehlerhaft und werden ignoriert:\n" + errorLog.join(", ") + "\n\nBitte prüfe A:, B:, C:, D: und die REIHENFOLGE.");
+    }
+
+    if (tempQuestions.length === 0) return;
+
+    // Vorschau im UI anzeigen
+    const preview = document.getElementById('previewContent');
+    preview.innerHTML = `<strong>Vorschau (${tempQuestions.length} Fragen bereit):</strong><hr style="border-color:#333">` + 
+                        tempQuestions.map(q => `• ${q.text.substring(0,40)}... <span style="color:var(--primary)">(${q.answer})</span>`).join('<br>');
+    
+    // UI-Elemente umschalten
+    document.getElementById('importPreview').classList.remove('hidden');
+    document.getElementById('confirmImportBtn').classList.remove('hidden');
+    document.getElementById('cancelImportBtn').classList.remove('hidden');
+    document.getElementById('previewBtn').classList.add('hidden');
+}
+
+async function executeImport() {
+    let addedCount = 0;
+    tempQuestions.forEach(newQ => {
+        // Dubletten-Check anhand des Fragetextes
+        if (!questions.find(q => q.text === newQ.text)) {
+            questions.push(newQ);
+            addedCount++;
+        }
+    });
+
+    if (addedCount > 0) {
+        await saveToNpoint(); // In die Cloud speichern
+        alert(`${addedCount} neue Fragen wurden hinzugefügt!`);
+    } else {
+        alert("Diese Fragen existieren bereits im Pool.");
+    }
+    
+    cancelImport(); // Felder leeren und Buttons zurücksetzen
+}
+
+function cancelImport() {
+    tempQuestions = [];
+    document.getElementById('importPreview').classList.add('hidden');
+    document.getElementById('confirmImportBtn').classList.add('hidden');
+    document.getElementById('cancelImportBtn').classList.add('hidden');
+    document.getElementById('previewBtn').classList.remove('hidden');
+    document.getElementById('massInput').value = "";
 }
 
     loadData();
