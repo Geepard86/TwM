@@ -157,7 +157,6 @@
             <input type="text" id="optB" placeholder="Option B" class="nav-input">
             <input type="text" id="optC" placeholder="Option C" class="nav-input">
             <input type="text" id="optD" placeholder="Option D" class="nav-input">
-            <input type="text" id="correctOrder" placeholder="Reihenfolge (BADC)" maxlength="4" class="nav-input" style="text-transform:uppercase">
             <input type="text" id="correctOrder" placeholder="Reihenfolge (z.B. BADC)" maxlength="4" class="nav-input" autocomplete="off" autocorrect="off" spellcheck="false" style="text-transform: uppercase; font-weight: bold;">
             <textarea id="qExpl" placeholder="Erklärung" class="nav-input" rows="3"></textarea>
         </div>
@@ -222,11 +221,15 @@
     function showView(id) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        if(id === 'menu') updateStatsDisplay();
+        updateStatsDisplay();
     }
 
     function startTraining() {
         if(questions.length === 0) return alert("Keine Fragen!");
+        // Falls der Topf leer ist (z.B. nach dem Laden oder Reset), füllen:
+    if (availableQuestions.length === 0) {
+        availableQuestions = [...questions];
+    }
         showView('trainingView');
         nextQuestion();
     }
