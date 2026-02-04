@@ -1,0 +1,20 @@
+{
+  "stats": {
+    "total": 0,
+    "correct": 0,
+    "avgSpeed": 0
+  },
+  "questions": [
+    {
+      "text": "Bringen Sie die folgenden Länder in die richtige Reihenfolge ihres Beitritts zur EU!",
+      "options": {
+        "A": "Griechenland",
+        "B": "Dänemark",
+        "C": "Österreich",
+        "D": "Spanien"
+      },
+      "answer": "BADC",
+      "explanation": "Dänemark 1973, Griechenland 1981, Spanien 1986, Österreich 1995."
+    }
+  ]
+}
