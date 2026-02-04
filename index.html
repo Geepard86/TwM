@@ -149,7 +149,7 @@
     <div id="settingsView" class="hidden">
         <h3>Settings ⚙️</h3>
         <button class="main-btn secondary" onclick="exportData()">📦 Daten Exportieren</button>
-        <button class="main-btn secondary" onclick="resetRemoteData()">🔄 NPoint Sync</button>
+       <button onclick="resetRemoteData()" class="danger">🗑️ NPoint Cloud LEEREN</button>
         <button class="main-btn danger" onclick="resetStatistics()">📉 Statistik Reset</button>
         <button class="main-btn" onclick="showView('menu')">Zurück</button>
     </div>
@@ -279,18 +279,40 @@
         });
     }
 
-    function exportData() {
-        const data = { questions, stats };
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'twm_backup.json';
-        a.click();
-    }
+function exportData() {
+    // Kombiniert alles, was aktuell im Speicher ist (lokal + npoint) ohne Statistiken
+    const data = { questions, stats: { total: 0, correct: 0, avgSpeed: 0 }
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'fragen.json'; // Fester Dateiname für GitHub
+    a.click();
+}
 
-    async function resetRemoteData() {
-        if (confirm("Remote mit lokalem Stand überschreiben?")) await saveToNpoint();
+async function resetRemoteData() {
+    const msg = "ACHTUNG: Möchtest du die Cloud (npoint) wirklich komplett LEEREN?\n\n" +
+                "Nutze dies nur, wenn du deine Fragen bereits in die fragen.json auf GitHub übernommen hast. Die Online-Statistiken werden dabei ebenfalls gelöscht.";
+    
+    if (confirm(msg)) {
+        try {
+            const emptyData = {
+                questions: [],
+                stats: { total: 0, correct: 0, avgSpeed: 0 }
+            };
+            
+            await fetch(`https://api.npoint.io/${NPOINT_ID}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(emptyData)
+            });
+            
+            alert("Cloud wurde geleert! Lade Seite neu...");
+            location.reload(); // Seite neu laden, um nur noch lokale Daten anzuzeigen
+        } catch (e) {
+            alert("Fehler beim Leeren der Cloud.");
+        }
     }
+}
 
     async function resetStatistics() {
         if (confirm("Statistik auf Null setzen?")) {
