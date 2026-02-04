@@ -471,7 +471,10 @@ function prepareImport() {
 
 async function executeImport() {
     let addedCount = 0;
+    
+    // 1. Fragen in das Haupt-Array übertragen
     tempQuestions.forEach(newQ => {
+        // Dubletten-Check: Nur hinzufügen, wenn der Text noch nicht existiert
         if (!questions.find(q => q.text === newQ.text)) {
             questions.push(newQ);
             addedCount++;
@@ -479,12 +482,23 @@ async function executeImport() {
     });
 
     if (addedCount > 0) {
+        // 2. Den Topf für die Zufallsauswahl sofort aktualisieren
+        availableQuestions = [...questions];
+
+        // 3. In die Cloud (npoint) speichern
         await saveToNpoint();
-        alert(`${addedCount} Fragen hinzugefügt!`);
+        
+        // 4. Statistik-Anzeige aktualisieren
+        updateStatsDisplay();
+        
+        alert(`${addedCount} Fragen erfolgreich hinzugefügt und gespeichert!`);
+    } else {
+        alert("Keine neuen Fragen hinzugefügt (alle Duplikate).");
     }
     
+    // 5. UI zurücksetzen und zum Menü
     cancelImport();
-    showView('menu'); // Zurück zum Hauptmenü
+    showView('menu'); 
 }
 
 function cancelImport() {
