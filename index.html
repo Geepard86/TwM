@@ -24,19 +24,38 @@
             justify-content: center; 
             min-height: 100vh;
             touch-action: manipulation;
+            overflow: hidden; /* Verhindert Scrollen der gesamten Seite */
         }
 
         .container { 
-            width: 100%; max-width: 500px; padding: 20px; 
+            width: 100%; max-width: 500px; padding: 20px; height: 100vh;
             background: var(--bg-card); min-height: 100vh;
             box-sizing: border-box; display: flex; flex-direction: column;
+            justify-content: space-between;
         }
+
+        #menu, #trainingView, #settingsView, #addQuestionView {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+        .explanation-box {
+    margin-top: 15px;
+    padding: 15px;
+    background: rgba(233, 69, 96, 0.1);
+    border-left: 4px solid var(--primary);
+    border-radius: 5px;
+    font-style: italic;
+    font-size: 0.9em;
+    color: #ddd;
+}
 
         h1 { color: var(--primary); text-align: center; margin: 0; }
         .subtitle { text-align: center; opacity: 0.6; font-size: 0.8em; margin-bottom: 15px; }
         .hidden { display: none; }
 
-        #sortableList { margin: 15px 0; }
+        #sortableList { margin: 15px 0; flex-grow: 1; overflow-y: auto; }
         .option { 
             background: var(--accent); margin: 8px 0; padding: 15px; 
             border: 2px solid rgba(255,255,255,0.1); border-radius: 10px; 
@@ -108,12 +127,16 @@
             <button class="choice-btn backspace" onclick="backspace()">⌫</button>
         </div>
         <button id="lockBtn" class="main-btn" onclick="checkAnswer()" disabled>Einloggen</button>
-        <div id="result" class="hidden">
-            <div id="feedback" class="feedback-area"></div>
-            <p id="explanation" style="margin-top: 10px; font-style: italic; text-align: center; font-size: 0.9em;"></p>
-            <button class="main-btn" onclick="nextQuestion()">Nächste Frage</button>
-            <button class="main-btn secondary" onclick="showView('menu')">Beenden</button>
-        </div>
+        <div id="result" class="hidden" style="flex-grow: 1; display: flex; flex-direction: column;">
+    <div id="feedback" class="feedback-area"></div>
+    <div class="explanation-box" id="explContainer">
+        <b>Erklärung:</b><br>
+        <span id="explanation"></span>
+    </div>
+    <div style="margin-top: auto;"> <button class="main-btn" onclick="nextQuestion()">Nächste Frage</button>
+        <button class="main-btn secondary" onclick="showView('menu')">Training Beenden</button>
+    </div>
+</div>
     </div>
 
     <div id="addQuestionView" class="hidden">
@@ -165,16 +188,27 @@
                 }
                 if (remoteData.stats && remoteData.stats.total > stats.total) stats = remoteData.stats;
             }
+            availableQuestions = [...questions];
             updateStatsDisplay();
         } catch (e) { console.warn("Daten werden geladen..."); }
     }
 
 function updateStatsDisplay() {
     const percent = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
-    const remaining = availableQuestions.length;
+    const remaining = availableQuestions ? availableQuestions.length : 0;
+    const totalInPool = questions.length;
+
     document.getElementById('mainStats').innerHTML = `
-        Fragen: ${stats.total} | Richtig: ${percent}% | Ø ${stats.avgSpeed.toFixed(2)}s<br>
-        <small style="opacity:0.7">Noch ${remaining} neue Fragen in dieser Runde</small>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <span>Gesamt-Pool: <b>${totalInPool}</b></span>
+            <span>Gespielt: <b>${stats.total}</b></span>
+            <span>Richtig: <b>${stats.correct}</b> (${percent}%)</span>
+            <span>Ø Speed: <b>${stats.avgSpeed.toFixed(2)}s</b></span>
+        </div>
+        <hr style="border: 0; border-top: 1px solid var(--accent); margin: 10px 0;">
+        <div style="text-align: center; color: var(--primary);">
+            Unverbraucht im aktuellen Topf: <b>${remaining}</b>
+        </div>
     `;
 }
 
@@ -308,6 +342,7 @@ function nextQuestion() {
     async function resetStatistics() {
         if (confirm("Statistik auf Null setzen?")) {
             stats = { total: 0, correct: 0, avgSpeed: 0 };
+            availableQuestions = [...questions]; // Auch den Topf resetten
             updateStatsDisplay();
             await saveToNpoint();
         }
