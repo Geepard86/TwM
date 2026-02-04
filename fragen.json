@@ -6,7 +6,7 @@
   },
   "questions": [
     {
-      "text": "Bringen Sie die folgenden Länder in die richtige Reihenfolge ihres Beitritts zur EU!",
+      "text": "Bringen Sie die folgenden Länder in die richtige Reihenfolge ihres Beitritts zur EU – vom frühesten bis zum jüngsten!",
       "options": {
         "A": "Griechenland",
         "B": "Dänemark",
@@ -14,7 +14,106 @@
         "D": "Spanien"
       },
       "answer": "BADC",
-      "explanation": "Dänemark 1973, Griechenland 1981, Spanien 1986, Österreich 1995."
+      "explanation": "Dänemark trat 1973 bei, Griechenland 1981, Spanien 1986 und Österreich 1995."
+    },
+    {
+      "text": "Bringen Sie die folgenden Bundeskanzler in die richtige Reihenfolge ihres ersten Amtsantritts – vom frühesten bis zum jüngsten!",
+      "options": {
+        "A": "Olaf Scholz",
+        "B": "Helmut Kohl",
+        "C": "Angela Merkel",
+        "D": "Gerhard Schröder"
+      },
+      "answer": "BDCA",
+      "explanation": "Kohl begann 1982, Schröder 1998, Merkel 2005 und Scholz 2021."
+    },
+    {
+      "text": "Bringen Sie die folgenden US-Präsidenten in die richtige Reihenfolge ihrer ersten Amtseinführung – vom frühesten bis zum jüngsten!",
+      "options": {
+        "A": "Barack Obama",
+        "B": "Joe Biden",
+        "C": "Ronald Reagan",
+        "D": "Bill Clinton"
+      },
+      "answer": "CDAB",
+      "explanation": "Reagan wurde 1981, Clinton 1993, Obama 2009 und Biden 2021 erstmals vereidigt."
+    },
+    {
+      "text": "Bringen Sie die folgenden europäischen Verträge in die richtige Reihenfolge ihrer Unterzeichnung – vom ältesten bis zum jüngsten!",
+      "options": {
+        "A": "Vertrag von Maastricht",
+        "B": "Römische Verträge",
+        "C": "Vertrag von Lissabon",
+        "D": "Einheitliche Europäische Akte"
+      },
+      "answer": "BDAC",
+      "explanation": "Unterzeichnet wurden sie 1957 (Rom), 1986 (EEA), 1992 (Maastricht) und 2007 (Lissabon)."
+    },
+    {
+      "text": "Bringen Sie die folgenden europäischen Hauptstädte in die richtige Reihenfolge – von Norden nach Süden!",
+      "options": {
+        "A": "Berlin",
+        "B": "Rom",
+        "C": "Stockholm",
+        "D": "Paris"
+      },
+      "answer": "CADB",
+      "explanation": "Stockholm liegt nördlicher als Berlin, Berlin nördlicher als Paris und Paris nördlicher als Rom."
+    },
+    {
+      "text": "Bringen Sie die folgenden europäischen Hauptstädte in die richtige Reihenfolge – von Westen nach Osten!",
+      "options": {
+        "A": "Budapest",
+        "B": "Wien",
+        "C": "Prag",
+        "D": "Lissabon"
+      },
+      "answer": "DCBA",
+      "explanation": "Lissabon liegt am weitesten westlich, dann folgen Prag, Wien und am östlichsten Budapest."
+    },
+    {
+      "text": "Bringen Sie die folgenden Bundespräsidienten in die richtige Reihenfolge ihres Amtsantritts – vom frühesten bis zum jüngsten!",
+      "options": {
+        "A": "Frank-Walter Steinmeier",
+        "B": "Johannes Rau",
+        "C": "Theodor Heuss",
+        "D": "Richard von Weizsäcker"
+      },
+      "answer": "CDBA",
+      "explanation": "Heuss begann 1949, von Weizsäcker 1984, Rau 1999 und Steinmeier 2017."
+    },
+    {
+      "text": "Bringen Sie die folgenden internationalen Organisationen in die richtige Reihenfolge ihres Gründungs- bzw. Inkrafttretensjahres – vom frühesten bis zum jüngsten!",
+      "options": {
+        "A": "Vereinte Nationen",
+        "B": "NATO",
+        "C": "OECD",
+        "D": "Europäische Union"
+      },
+      "answer": "ABCD",
+      "explanation": "Die UN starteten 1945, die NATO 1949, die OECD 1961 und die EU 1993 (Maastricht in Kraft)."
+    },
+    {
+      "text": "Bringen Sie die folgenden afrikanischen Staaten in die richtige Reihenfolge ihrer Unabhängigkeit – vom frühesten bis zum jüngsten!",
+      "options": {
+        "A": "Namibia",
+        "B": "Ghana",
+        "C": "Kenia",
+        "D": "Nigeria"
+      },
+      "answer": "BDCA",
+      "explanation": "Ghana wurde 1957 unabhängig, Nigeria 1960, Kenia 1963 und Namibia 1990."
+    },
+    {
+      "text": "Bringen Sie die folgenden Länder in die richtige Reihenfolge, wann dort Frauen auf nationaler Ebene wählen durften – vom frühesten bis zum jüngsten!",
+      "options": {
+        "A": "Finnland",
+        "B": "Schweiz",
+        "C": "Deutschland",
+        "D": "Neuseeland"
+      },
+      "answer": "DACB",
+      "explanation": "Neuseeland führte es 1893 ein, Finnland 1906, Deutschland 1918 und die Schweiz erst 1971 (Bundesebene)."
     }
   ]
 }
