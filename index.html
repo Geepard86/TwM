@@ -72,6 +72,12 @@ h1 { color: var(--primary); text-align: center; margin: 0; font-size: 1.5rem; }
     border-radius: 10px; 
     font-weight: bold;
     font-size: 0.9rem;
+    
+}
+
+.option:active {
+    transform: scale(0.97);
+    opacity: 0.8;
 }
 
 /* Fixierte Elemente unten */
@@ -307,6 +313,10 @@ input, textarea {
             div.className = 'option';
             div.id = `opt-${key}`;
             div.innerText = `${key}: ${currentQuestion.options[key]}`;
+            // 👉 Klick auf Antwort wählt sie direkt
+            div.addEventListener('click', () => {
+                typeKey(key);
+            });
             list.appendChild(div);
         });
 
